@@ -1,0 +1,30 @@
+for code inside model.py:
+1) os.listdir(IMAGE_DIR)
+makes a list of names of all files and folders inside IMAGE_DIR
+2) Conv2D(32, (3,3), activation='relu', padding='same'),
+-appplies 32 filters(kernals) of ssize 3x3. so, 32 3x3 filters in the layer look for patterns in the image .
+-The values of the 3x3 filter metrices are optimized via gradient descent algorithm with each training round.
+-padding='same' adds border of 0s around the image so that no information conatined in edges of image be lost as a 
+result of cropping effect of filters
+paddind='valid' would mean no padding will be used.
+3)Max pooling -> reduces dimensions of output image matrix, which reduces compputation and overfitting
+4)GlobalAveragePooling2D
+-> one value per channel array
+so, (None, 10,20,2) -> outputs two values 
+i.e. what is present but not where is it present(unlike flatten which outputs 10*10*2 values into a list)
+5)Batch normalization order:
+layers.Conv2D(32, kernel_size=(3,3), padding='same', input_shape=(224,224,3)),
+    layers.BatchNormalization(),
+    layers.Activation("relu"),
+
+normalization is applied based on rawoutput of neuron, and then normalization output is passed through theactivation function. (according to official BN paper)
+6) dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels))
+outputs dataset in form:
+tf.data.Dataset([
+    (image_paths[0], labels[0])
+    (image_paths[1], labels[1])
+    (image_paths[2], labels[2])
+    ...
+])
+7)dataset = dataset.map(load_image, num_parallel_calls=tf.data.AUTOTUNE) 
+num_parallel_calls=tf.data.AUTOTUNE allows multiple tuples within dataset to pass in load_image function depending on CPU load
