@@ -28,3 +28,7 @@ tf.data.Dataset([
 ])
 7)dataset = dataset.map(load_image, num_parallel_calls=tf.data.AUTOTUNE) 
 num_parallel_calls=tf.data.AUTOTUNE allows multiple tuples within dataset to pass in load_image function depending on CPU load
+8)train_ds = train_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
+->creates batches on-the-fly and feeds each batch directly to the model during training.
+->prefetch(tf.data.AUTOTUNE) method allows to create next batch while current batch is being processed by the model.
+->for testing dataset, batching allows the model to make predictions on multiple samples at once, speeding up evaluation and reducing memory usage.

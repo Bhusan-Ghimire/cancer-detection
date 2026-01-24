@@ -9,6 +9,7 @@ from tensorflow.keras.regularizers import l2
 from sklearn.metrics import ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 from sklearn.utils.class_weight import compute_class_weight
+import sys
 
 # =========================
 # 1. CONFIGURATION
@@ -51,7 +52,7 @@ def load_image(path, label):
     img = tf.cast(img, tf.float32) / 255.0 # tensor to numpy array
     return img, label
 
-dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels))
+dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels)) #in the explanations file
 dataset = dataset.map(load_image, num_parallel_calls=tf.data.AUTOTUNE) 
 dataset = dataset.shuffle(512, seed=RANDOM_STATE)
 
@@ -63,7 +64,7 @@ train_ds = dataset.take(train_size)
 val_ds = dataset.skip(train_size).take(val_size)
 test_ds = dataset.skip(train_size + val_size)
 
-train_ds = train_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
+train_ds = train_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE) #in the explanations file
 val_ds = val_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 test_ds = test_ds.batch(BATCH_SIZE)
 
@@ -81,21 +82,21 @@ data_augmentation_layer = tf.keras.Sequential([
 model_from_scratch = models.Sequential([
     tf.keras.Input(shape=(224,224,3)),
 
-    layers.Conv2D(32, 3, padding='same'),
+    layers.Conv2D(32, kernel_size=(3,3), padding='same'),
+    layers.BatchNormalization(),
+    layers.LeakyReLU(negative_slope=0.1),
+    # layers.MaxPooling2D(),
+
+    layers.Conv2D(64, kernel_size=(3,3), padding='same'),
     layers.BatchNormalization(),
     layers.LeakyReLU(negative_slope=0.1),
     layers.MaxPooling2D(),
 
-    layers.Conv2D(64, 3, padding='same'),
+    layers.Conv2D(128, kernel_size=(3,3), padding='same'),
     layers.BatchNormalization(),
     layers.LeakyReLU(negative_slope=0.1),
     layers.MaxPooling2D(),
-
-    layers.Conv2D(128, 3, padding='same'),
-    layers.BatchNormalization(),
-    layers.LeakyReLU(negative_slope=0.1),
-    layers.MaxPooling2D(),
-    layers.Conv2D(128, 3, padding='same'),
+    layers.Conv2D(128, kernel_size=(3,3), padding='same'),
     layers.BatchNormalization(),
     layers.LeakyReLU(negative_slope=0.1),
     layers.MaxPooling2D(),
@@ -134,6 +135,8 @@ transfer_model = models.Sequential([
 model = transfer_model
 
 model.summary()
+
+# sys.exit() #stops code execution after this line
 
 # =========================
 # 5. COMPILE MODEL
