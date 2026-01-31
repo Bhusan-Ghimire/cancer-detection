@@ -19,10 +19,10 @@ CSV_PATH = "./metadata.csv"
 
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 8
-EPOCHS = 5
+EPOCHS = 300
 RANDOM_STATE = 42
 
-TOTAL_IMAGES = 800       # final dataset size
+TOTAL_IMAGES = 10000      # final dataset size
 SKIP_IMAGES = 10000       # skip earlier ones reproducibly
 
 # =========================
@@ -144,7 +144,7 @@ model.summary()
 model.compile(
     optimizer=Adam(learning_rate=5e-4),
     loss=BinaryCrossentropy(),
-    metrics=['accuracy']
+    metrics=['recall']  #only reports recall as a metric after each epoch, without changing the training behaviour
 )
 
 # Handle class imbalance
@@ -176,11 +176,14 @@ history = model.fit(
     callbacks=[early_stopping]
 )
 
+model.save("skin_cancer_model.keras")
+
 # =========================
 # 7. EVALUATION
 # =========================
 y_true = []
 y_pred = []
+
 
 for x, y in test_ds:
     preds = model.predict(x)
@@ -204,10 +207,10 @@ def predict_single_image(image_path):
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize_with_pad(img, IMG_SIZE[0], IMG_SIZE[1])
     img = tf.cast(img, tf.float32) / 255.0
-    img = tf.expand_dims(img, axis=0)
+    img = tf.expand_dims(img, axis=0) #convert image shape into  (1, height, width, channels)
 
     prob = model.predict(img)[0][0]
-    label = "Cancerous" if prob >= 0.5 else "Normal"
+    label = "Cancerous" if prob >= 0.6 else "Normal"
 
     print(f"Prediction: {label}")
     print(f"Confidence: {prob:.4f}")
