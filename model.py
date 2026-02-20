@@ -22,8 +22,8 @@ BATCH_SIZE = 8
 EPOCHS = 300
 RANDOM_STATE = 42
 
-TOTAL_IMAGES = 10000      # final dataset size
-SKIP_IMAGES = 10000       # skip earlier ones reproducibly
+TOTAL_IMAGES = 1000      # final dataset size
+SKIP_IMAGES = 1000       # skip earlier ones reproducibly
 
 # =========================
 # 2. LOAD & ALIGN METADATA
@@ -72,11 +72,12 @@ test_ds = test_ds.batch(BATCH_SIZE)
 # 4. MODEL DEFINITION
 # =========================
 
+#aters each training images in-place in each epoch, without changing the original train_ds dataset.
 data_augmentation_layer = tf.keras.Sequential([
     layers.RandomFlip("horizontal_and_vertical"),
     layers.RandomRotation(0.2),
-    layers.RandomZoom((-0.3, 0.3))
-]) #aters each training images in-place in each epoch, without changing the original train_ds dataset.
+    layers.RandomZoom((-0.2, 0.1)) 
+])
 
 #model built from scratch
 model_from_scratch = models.Sequential([
@@ -142,7 +143,7 @@ model.summary()
 # 5. COMPILE MODEL
 # =========================
 model.compile(
-    optimizer=Adam(learning_rate=5e-4),
+    optimizer=Adam(learning_rate=1e-4),
     loss=BinaryCrossentropy(),
     metrics=['recall']  #only reports recall as a metric after each epoch, without changing the training behaviour
 )
@@ -153,7 +154,8 @@ weights = compute_class_weight(
     classes= np.array([0,1]),
     y= labels
 )
-priority_factor = 1.2 #never exceed penalizing factor more than 2
+priority_factor = 1.15 #never exceed penalizing factor more than 2
+# data malignant tira skewed huda hudai pani, precision aajai improve garna priority_factor rakheko.
 class_weight = {
     0: weights[0], 
     1: weights[1] * priority_factor
@@ -176,7 +178,7 @@ history = model.fit(
     callbacks=[early_stopping]
 )
 
-model.save("skin_cancer_model.keras")
+model.save("skin_cancer_model_testing.keras")
 
 # =========================
 # 7. EVALUATION
@@ -210,7 +212,7 @@ def predict_single_image(image_path):
     img = tf.expand_dims(img, axis=0) #convert image shape into  (1, height, width, channels)
 
     prob = model.predict(img)[0][0]
-    label = "Cancerous" if prob >= 0.6 else "Normal"
+    label = "Cancerous" if prob >= 0.5 else "Normal"
 
     print(f"Prediction: {label}")
     print(f"Confidence: {prob:.4f}")
