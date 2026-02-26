@@ -3,14 +3,18 @@
 ## Architecture
 
 ```mermaid
-graph LR
     A["React Frontend<br/>:5173"] -->|POST /predict| B["Express Middleware<br/>:3000"]
     B -->|POST /predict| C["FastAPI Server<br/>:8000"]
     C -->|TensorFlow| D["skin_cancer_model.keras"]
     D -->|JSON| C
     C -->|JSON| B
     B -->|JSON| A
+    style A stroke:#6366f1,stroke-width:2px
+    style B stroke:#6366f1,stroke-width:2px
+    style C stroke:#6366f1,stroke-width:2px
 ```
+
+*Note: Access wirelessly on your phone via `http://192.168.1.72:5173`*
 
 ## Files Created / Modified
 
@@ -38,15 +42,15 @@ cd middleware && node index.js
 cd frontend && npm run dev
 ```
 
-Then open **http://localhost:5173** in your browser.
+Then open **http://192.168.1.72:5173** in your browser (on PC or phone).
 
 ## Verification Results
 
 | Server | URL | Status |
 |--------|-----|--------|
 | FastAPI | http://localhost:8000 | ✅ Running |
-| Express Middleware | http://localhost:3000 | ✅ Running (`{"status":"Middleware is running"}`) |
-| React Frontend | http://localhost:5173 | ✅ Running (HTTP 200) |
+| Express Middleware | http://192.168.1.72:3000 | ✅ Running |
+| React Frontend | http://192.168.1.72:5173 | ✅ Running |
 
 ## Response Format
 

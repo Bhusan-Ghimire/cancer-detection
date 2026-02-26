@@ -55,17 +55,20 @@ cancer detection/                      ← project root
 ├── skin_cancer_model.keras            ← PRODUCTION trained model (used by app.py)
 ├── skin_cancer_model_testing.keras    ← Experimental / latest training output
 ├── metadata.csv                       ← ISIC dataset metadata (5.3 MB, ~50k rows)
+├── .env                               ← Global environment variables (FastAPI)
 │
 ├── ISIC-images/                       ← Dermoscopic JPEG images from the ISIC dataset
 │                                         (not tracked in git due to size)
 │
 ├── middleware/
 │   ├── index.js                       ← Express proxy server (Port 3000)
-│   ├── package.json                   ← Node dependencies: express, cors, multer, axios, form-data
+│   ├── .env                           ← Middleware environment variables
+│   ├── package.json                   ← Node dependencies: express, cors, multer, axios, form-data, dotenv
 │   └── node_modules/
 │
 ├── frontend/
 │   ├── index.html                     ← Root HTML shell (mounts React app)
+│   ├── .env                           ← Frontend environment variables (VITE_ prefix)
 │   ├── vite.config.js                 ← Vite build config (React plugin)
 │   ├── package.json                   ← React 19, Axios, Vite, ESLint
 │   ├── eslint.config.js
@@ -92,11 +95,11 @@ User (Browser)
     │
     │  drag & drop / file select (image file)
     ▼
-React Frontend  ─── http://localhost:5173  (Vite dev server)
+React Frontend  ─── http://192.168.1.72:5173  (Vite dev server, host: 0.0.0.0)
     │
     │  POST /predict  multipart/form-data  (via Axios)
     ▼
-Express Middleware  ─── http://localhost:3000
+Express Middleware  ─── http://192.168.1.72:3000 (0.0.0.0)
     │  - Receives file with multer (stored in memory)
     │  - Re-packs into new FormData
     │  - Forwards to FastAPI via Axios
@@ -355,7 +358,9 @@ app.post("/predict", upload.single("file"), async (req, res) => {
     res.json(response.data);  // transparently forwards FastAPI's JSON response
 });
 
-app.listen(PORT, () => console.log(`Middleware server running on http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Middleware server running on http://192.168.1.72:${PORT}`);
+});
 ```
 
 **Key points:**
@@ -419,7 +424,7 @@ Mounts `<App />` into the `#root` div. `StrictMode` enables extra React warnings
 ```javascript
 import axios from "axios";
 
-const MIDDLEWARE_URL = "http://localhost:3000";
+const MIDDLEWARE_URL = import.meta.env.VITE_MIDDLEWARE_URL || "http://localhost:3000";
 
 export async function predictImage(file) {
     const formData = new FormData();
@@ -639,7 +644,7 @@ Three terminals are required simultaneously:
 # From project root: d:\ML app for publishing\cancer detection\
 uvicorn app:app --reload --port 8000
 ```
-- Starts the Python server at http://localhost:8000
+- Starts the Python server at http://localhost:8000 (Internal to PC)
 - `--reload` watches for code changes and restarts automatically
 
 ### Terminal 2 — Express Middleware
@@ -647,16 +652,16 @@ uvicorn app:app --reload --port 8000
 cd middleware
 node index.js
 ```
-- Starts proxy server at http://localhost:3000
-- Confirm: browser visit to http://localhost:3000 returns `{"status":"Middleware is running"}`
+- Starts proxy server at http://192.168.1.72:3000
+- Confirm: visit http://192.168.1.72:3000 returns `{"status":"Middleware is running"}`
 
 ### Terminal 3 — React Frontend
 ```bash
 cd frontend
 npm run dev
 ```
-- Starts Vite dev server at http://localhost:5173
-- Open this URL in the browser to use the app
+- Starts Vite dev server at http://192.168.1.72:5173
+- Open this URL on your phone's browser to use the app wirelessly
 
 ### Order matters on startup
 FastAPI should ideally be running first before the middleware is tested, but the frontend/middleware can
@@ -750,4 +755,4 @@ The folder `miscllaneous/` contains a typo (extra 'l') — this is intentional/a
 
 ---
 
-*Last updated: 2026-02-26*
+*Last updated: 2026-02-26 (Configured for Mobile Access & Environment Variables)*

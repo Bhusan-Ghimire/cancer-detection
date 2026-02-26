@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const MIDDLEWARE_URL = "http://localhost:3000";
+const MIDDLEWARE_URL = import.meta.env.VITE_MIDDLEWARE_URL || "http://localhost:3000";
 
 export async function predictImage(file) {
     const formData = new FormData();

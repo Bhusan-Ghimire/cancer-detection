@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
@@ -5,8 +6,9 @@ const axios = require("axios");
 const FormData = require("form-data");
 
 const app = express();
-const PORT = 3000;
-const FASTAPI_URL = "http://127.0.0.1:8000";
+const PORT = process.env.PORT || 3000;
+const FASTAPI_URL = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
+const HOST_IP = process.env.HOST_IP || "localhost";
 
 // Enable CORS for React frontend
 app.use(cors());
@@ -47,6 +49,6 @@ app.post("/predict", upload.single("file"), async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Middleware server running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Middleware server running on http://${HOST_IP}:${PORT}`);
 });

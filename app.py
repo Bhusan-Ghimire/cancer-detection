@@ -6,6 +6,11 @@ import io
 
 from fastapi.middleware.cors import CORSMiddleware
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = FastAPI()
 
 # Enable CORS
@@ -18,7 +23,8 @@ app.add_middleware(
 )
 
 # Load trained model once
-model = tf.keras.models.load_model("skin_cancer_model.keras")
+MODEL_PATH = os.getenv("MODEL_PATH", "skin_cancer_model.keras")
+model = tf.keras.models.load_model(MODEL_PATH)
 
 IMG_SIZE = (224, 224)
 
