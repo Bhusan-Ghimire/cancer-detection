@@ -17,6 +17,9 @@
   --safe: #10b981;
   --safe-bg: rgba(16, 185, 129, 0.1);
   --safe-border: rgba(16, 185, 129, 0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-border: rgba(245, 158, 11, 0.25);
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -381,6 +384,15 @@ body {
   color: var(--safe);
 }
 
+.result-warning {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+}
+
+.result-warning .result-icon {
+  color: var(--warning);
+}
+
 .result-icon {
   flex-shrink: 0;
 }
@@ -440,6 +452,11 @@ body {
 .bar-safe {
   background: linear-gradient(90deg, #34d399, #10b981);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.bar-warning {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
 }
 
 /* =============== DISCLAIMER =============== */

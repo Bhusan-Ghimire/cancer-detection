@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { predictImage } from "./api";
 import "./App.css";
 
@@ -9,7 +9,17 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleFile = (selectedFile) => {
     if (selectedFile && selectedFile.type.startsWith("image/")) {
@@ -64,6 +74,30 @@ function App() {
     ? (result.confidence * 100).toFixed(1)
     : null;
 
+  const getRiskLevel = (confidence) => {
+    const prob = confidence * 100;
+    if (prob <= 30) return {
+      label: "Low Risk",
+      type: "safe",
+      note: "No signs of malignancy",
+      color: "safe"
+    };
+    if (prob <= 70) return {
+      label: "Moderate Risk",
+      type: "warning",
+      note: "Further examination suggested",
+      color: "warning"
+    };
+    return {
+      label: "High Risk",
+      type: "danger",
+      note: "Suspicious lesion detected",
+      color: "danger"
+    };
+  };
+
+  const risk = result ? getRiskLevel(result.confidence) : null;
+
   return (
     <div className="app">
       {/* Background decorations */}
@@ -88,9 +122,11 @@ function App() {
       <main className="main">
         {/* Upload Section */}
         <section className="upload-section glass-card">
-          <h2 className="section-title">Upload Skin Image</h2>
+          <h2 className="section-title">{isMobile ? "Click Skin Image" : "Upload Skin Image"}</h2>
           <p className="section-desc">
-            Drag & drop or click to upload a dermoscopic image for analysis
+            {isMobile
+              ? "Click to capture a dermoscopic image for analysis"
+              : "Drag & drop or click to upload a dermoscopic image for analysis"}
           </p>
 
           <div
@@ -125,8 +161,10 @@ function App() {
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                 </div>
-                <p className="dropzone-text">Drop your image here</p>
-                <p className="dropzone-hint">or click to browse · JPG, PNG supported</p>
+                <p className="dropzone-text">{isMobile ? "Click to take a photo" : "Drop your image here"}</p>
+                <p className="dropzone-hint">
+                  {isMobile ? "or select from gallery · JPG, PNG supported" : "or click to browse · JPG, PNG supported"}
+                </p>
               </div>
             )}
           </div>
@@ -156,16 +194,22 @@ function App() {
         </section>
 
         {/* Results Section */}
-        {result && (
+        {result && risk && (
           <section className="result-section glass-card fade-in">
             <h2 className="section-title">Analysis Result</h2>
-            <div className={`result-badge ${result.prediction === "Cancerous" ? "result-danger" : "result-safe"}`}>
+            <div className={`result-badge result-${risk.type}`}>
               <div className="result-icon">
-                {result.prediction === "Cancerous" ? (
+                {risk.type === "danger" ? (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                ) : risk.type === "warning" ? (
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
                   </svg>
                 ) : (
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -175,23 +219,19 @@ function App() {
                 )}
               </div>
               <div className="result-info">
-                <span className="result-label">{result.prediction}</span>
-                <span className="result-sublabel">
-                  {result.prediction === "Cancerous"
-                    ? "Suspicious lesion detected"
-                    : "No signs of malignancy"}
-                </span>
+                <span className="result-label">{risk.label}</span>
+                <span className="result-sublabel">{risk.note}</span>
               </div>
             </div>
 
             <div className="confidence-section">
               <div className="confidence-header">
-                <span>Confidence Score</span>
+                <span>Malignancy likelihood</span>
                 <span className="confidence-value">{confidencePercent}%</span>
               </div>
               <div className="confidence-bar-track">
                 <div
-                  className={`confidence-bar-fill ${result.prediction === "Cancerous" ? "bar-danger" : "bar-safe"}`}
+                  className={`confidence-bar-fill bar-${risk.color}`}
                   style={{ width: `${confidencePercent}%` }}
                 ></div>
               </div>
