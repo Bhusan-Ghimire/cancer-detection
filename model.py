@@ -49,7 +49,7 @@ def load_image(path, label):
     img = tf.io.read_file(path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize_with_pad(img, IMG_SIZE[0], IMG_SIZE[1])
-    img = tf.cast(img, tf.float32) / 255.0 # tensor to numpy array
+    img = tf.cast(img, tf.float32) / 255.0 # tensor's int values to float values to make them divideable by 225.0
     return img, label
 
 dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels)) #in the explanations file

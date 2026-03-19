@@ -8,7 +8,6 @@ const FormData = require("form-data");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const FASTAPI_URL = process.env.FASTAPI_URL || "http://127.0.0.1:8000";
-const HOST_IP = process.env.HOST_IP || "localhost";
 
 // Enable CORS for React frontend
 app.use(cors());
@@ -50,5 +49,5 @@ app.post("/predict", upload.single("file"), async (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Middleware server running on http://${HOST_IP}:${PORT}`);
+    console.log(`Middleware server running on port ${PORT} (0.0.0.0)`);
 });
