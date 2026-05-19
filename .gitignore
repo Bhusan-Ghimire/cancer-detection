@@ -6,3 +6,5 @@ miscllaneous/
 .env
 middleware/.env
 metadata.csv
+__pycache__/
+
