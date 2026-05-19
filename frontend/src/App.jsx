@@ -105,13 +105,32 @@ function App() {
       <div className="bg-glow bg-glow-2"></div>
       <div className="bg-glow bg-glow-3"></div>
 
+      {/* Floating medical cross icon */}
+      <div className="floating-cross">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+        </svg>
+      </div>
+
       <header className="header">
         <div className="logo">
           <div className="logo-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
+            {/* Shield logo with medical cross */}
+            <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+              <defs>
+                <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3182ce" />
+                  <stop offset="100%" stopColor="#2b6cb0" />
+                </linearGradient>
+              </defs>
+              {/* Shield shape */}
+              <path
+                d="M24 4L6 12v10c0 11.1 7.7 21.5 18 24 10.3-2.5 18-12.9 18-24V12L24 4z"
+                fill="url(#shieldGrad)"
+              />
+              {/* Medical cross */}
+              <rect x="20" y="14" width="8" height="20" rx="2" fill="white" />
+              <rect x="14" y="20" width="20" height="8" rx="2" fill="white" />
             </svg>
           </div>
           <span>DermAI Scanner</span>
@@ -254,10 +273,6 @@ function App() {
           </section>
         )}
       </main>
-
-      <footer className="footer">
-        <p>DermAI Scanner · Powered by TensorFlow & React</p>
-      </footer>
     </div>
   );
 }

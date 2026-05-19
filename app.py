@@ -31,8 +31,8 @@ async def predict(file: UploadFile = File(...)):
     contents = await file.read()
     img = preprocess_image(contents)
 
-    prob = model.predict(img)[0][0]
+    prob = model.predict(img)[0][0] 
 
     return {
-        "confidence": float(prob)
+        "confidence": float(prob) 
     }
