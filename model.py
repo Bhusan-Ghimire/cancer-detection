@@ -11,9 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.utils.class_weight import compute_class_weight
 import sys
 
-# =========================
 # 1. CONFIGURATION
-# =========================
 IMAGE_DIR = "./ISIC-images"
 CSV_PATH = "./metadata.csv"
 
@@ -25,9 +23,7 @@ RANDOM_STATE = 42
 TOTAL_IMAGES = 1000      # final dataset size
 SKIP_IMAGES = 1000       # skip earlier ones reproducibly
 
-# =========================
 # 2. LOAD & ALIGN METADATA
-# =========================
 df = pd.read_csv(CSV_PATH)
 
 df = df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
@@ -42,9 +38,7 @@ labels = df["melanocytic"].astype(int).values
 
 print("Malignant ratio:", labels.mean())
 
-# =========================
 # 3. TF.DATA PIPELINE
-# =========================
 def load_image(path, label):
     img = tf.io.read_file(path)
     img = tf.image.decode_jpeg(img, channels=3)
@@ -68,9 +62,7 @@ train_ds = train_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE) #in the explana
 val_ds = val_ds.batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 test_ds = test_ds.batch(BATCH_SIZE)
 
-# =========================
 # 4. MODEL DEFINITION
-# =========================
 
 #aters each training images in-place in each epoch, without changing the original train_ds dataset.
 data_augmentation_layer = tf.keras.Sequential([
@@ -137,11 +129,7 @@ model = transfer_model
 
 model.summary()
 
-# sys.exit() #stops code execution after this line
-
-# =========================
 # 5. COMPILE MODEL
-# =========================
 model.compile(
     optimizer=Adam(learning_rate=1e-4),
     loss=BinaryCrossentropy(),
@@ -154,8 +142,7 @@ weights = compute_class_weight(
     classes= np.array([0,1]),
     y= labels
 )
-priority_factor = 1.15 #never exceed penalizing factor more than 2
-# data malignant tira skewed huda hudai pani, precision aajai improve garna priority_factor rakheko.
+priority_factor = 1.15
 class_weight = {
     0: weights[0], 
     1: weights[1] * priority_factor
@@ -167,9 +154,7 @@ early_stopping = tf.keras.callbacks.EarlyStopping(
     restore_best_weights=True
 )
 
-# =========================
 # 6. TRAIN
-# =========================
 history = model.fit(
     train_ds,
     validation_data=val_ds,
@@ -180,9 +165,7 @@ history = model.fit(
 
 model.save("skin_cancer_model_testing.keras")
 
-# =========================
 # 7. EVALUATION
-# =========================
 y_true = []
 y_pred = []
 
@@ -201,9 +184,7 @@ ConfusionMatrixDisplay.from_predictions(
 plt.title("Confusion Matrix - Cancer detection")
 plt.show()
 
-# =========================
 # 8. SINGLE IMAGE INFERENCE
-# =========================
 def predict_single_image(image_path):
     img = tf.io.read_file(image_path)
     img = tf.image.decode_jpeg(img, channels=3)
