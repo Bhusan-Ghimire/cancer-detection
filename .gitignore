@@ -5,3 +5,4 @@ miscllaneous/
 
 .env
 middleware/.env
+metadata.csv
